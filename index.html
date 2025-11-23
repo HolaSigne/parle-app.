@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Parlé. | Speak your future</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Fonts: Playfair Display (Elegancia) & Inter (Modernidad) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1e293b;
+        }
+        
+        h1, h2, h3, .serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Minimalist Scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+        }
+        
+        /* Smooth Transitions */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* Elegant Card Hover */
+        .module-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .module-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col bg-white">
+    <div id="root" class="h-full w-full flex flex-col max-w-md mx-auto shadow-2xl overflow-hidden bg-gray-50 relative"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        
+        // --- Translations (Interfaz App) ---
+        const TEXTS = {
+            es: {
+                learn: 'Aprender',
+                guides: 'Guías',
+                converse: 'Conversar',
+                me: 'Perfil',
+                currentCourse: 'Curso Actual',
+                welcomeBack: 'Bienvenida de nuevo, Elena. Hoy nos enfocamos en',
+                topic: 'etiqueta en la cena',
+                exploreContext: 'Explorar Contexto',
+                destinations: 'Destinos',
+                unlockMore: 'Desbloquear más guías',
+                unlockText: 'Completa el Capítulo 03 para acceder a más ciudades.',
+                online: 'En línea',
+                typeMessage: 'Escribe un mensaje...',
+                streak: 'Racha días',
+                fluency: 'Fluidez',
+                achievements: 'Logros',
+                culturalExplorer: 'Explorador Cultural',
+                learnedIdioms: '50 modismos aprendidos',
+                convoStarter: 'Iniciador de Conversación',
+                chattedHours: '2 horas de chat',
+                interfaceLang: 'Idioma de la App',
+                chapter: 'CAPÍTULO',
+                exercise: 'Ejercicio',
+                of: 'de',
+                translate: 'Traducir',
+                skip: 'Saltar este ejercicio',
+                selectLanguage: 'Seleccionar Idioma',
+                continue: 'Continuar'
+            },
+            en: {
+                learn: 'Learn',
+                guides: 'Guides',
+                converse: 'Converse',
+                me: 'Me',
+                currentCourse: 'Current Course',
+                welcomeBack: 'Welcome back, Elena. Today we focus on',
+                topic: 'dining etiquette',
+                exploreContext: 'Explore Context',
+                destinations: 'Destinations',
+                unlockMore: 'Unlock More Guides',
+                unlockText: 'Complete Chapter 03 to access more cities.',
+                online: 'Online',
+                typeMessage: 'Type a message...',
+                streak: 'Day Streak',
+                fluency: 'Fluency',
+                achievements: 'Achievements',
+                culturalExplorer: 'Cultural Explorer',
+                learnedIdioms: 'Learned 50 idioms',
+                convoStarter: 'Conversation Starter',
+                chattedHours: 'Chatted for 2 hours',
+                interfaceLang: 'App Language',
+                chapter: 'CHAPTER',
+                exercise: 'Exercise',
+                of: 'of',
+                translate: 'Translate',
+                skip: 'Skip this exercise',
+                selectLanguage: 'Select Language',
+                continue: 'Continue'
+            }
+        };
+
+        // --- Data: Languages ---
+        const LANGUAGES = [
+            { id: 'fr', name: 'French', nameEs: 'Francés', flag: 'fr' },
+            { id: 'en', name: 'English', nameEs: 'Inglés', flag: 'us' },
+            { id: 'es', name: 'Spanish', nameEs: 'Español', flag: 'es' },
+            { id: 'it', name: 'Italian', nameEs: 'Italiano', flag: 'it' },
+            { id: 'pt', name: 'Portuguese', nameEs: 'Portugués', flag: 'br' },
+            { id: 'de', name: 'German', nameEs: 'Alemán', flag: 'de' },
+            { id: 'jp', name: 'Japanese', nameEs: 'Japonés', flag: 'jp' },
+            { id: 'cn', name: 'Chinese', nameEs: 'Chino', flag: 'cn' },
+            { id: 'ru', name: 'Russian', nameEs: 'Ruso', flag: 'ru' }
+        ];
+
+        // --- Data: Mock Content (Cursos y Guías por Idioma) ---
+        const COURSES_DATA = {
+            fr: [
+                { id: 1, number: "01", title: 'Foundations I', subtitle: 'Greetings & Essentials', status: 'completed' },
+                { id: 2, number: "02", title: 'Foundations II', subtitle: 'Dining & Etiquette', status: 'available' },
+                { id: 3, number: "03", title: 'Urban Navigation', subtitle: 'City, Transport', status: 'locked' }
+            ],
+            jp: [
+                { id: 1, number: "01", title: 'Hiragana Basics', subtitle: 'Writing Systems', status: 'completed' },
+                { id: 2, number: "02", title: 'Greetings', subtitle: 'Formal vs Informal', status: 'available' },
+                { id: 3, number: "03", title: 'Convenience Store', subtitle: 'Buying essentials', status: 'locked' }
+            ],
+            it: [
+                { id: 1, number: "01", title: 'Benvenuto', subtitle: 'Introductions', status: 'completed' },
+                { id: 2, number: "02", title: 'Al Ristorante', subtitle: 'Ordering Pasta & Wine', status: 'available' },
+                { id: 3, number: "03", title: 'La Famiglia', subtitle: 'Describing relatives', status: 'locked' }
+            ],
+            // Fallback genérico para otros idiomas
+            default: [
+                { id: 1, number: "01", title: 'Basics I', subtitle: 'Start Here', status: 'completed' },
+                { id: 2, number: "02", title: 'Basics II', subtitle: 'Common Phrases', status: 'available' },
+                { id: 3, number: "03", title: 'Travel', subtitle: 'Getting Around', status: 'locked' }
+            ]
+        };
+
+        const GUIDES_DATA = {
+            fr: [
+                { id: 1, city: "Paris", country: "France", image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80", topics: ["Café Culture", "Metro"] },
+                { id: 2, city: "Provence", country: "France", image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=600&q=80", topics: ["Wine", "Lavender"] }
+            ],
+            jp: [
+                { id: 1, city: "Tokyo", country: "Japan", image: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=600&q=80", topics: ["Shibuya", "Etiquette"] },
+                { id: 2, city: "Kyoto", country: "Japan", image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=80", topics: ["Temples", "Tea"] }
+            ],
+            it: [
+                { id: 1, city: "Rome", country: "Italy", image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=600&q=80", topics: ["History", "Gelato"] },
+                { id: 2, city: "Venice", country: "Italy", image: "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?auto=format&fit=crop&w=600&q=80", topics: ["Canals", "Art"] }
+            ],
+             default: [
+                { id: 1, city: "Capital City", country: "Country", image: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=600&q=80", topics: ["Culture", "History"] }
+            ]
+        };
+
+        // --- Icons ---
+        const Icon = ({ name, size = 20, className, strokeWidth = 1.5 }) => {
+            const icons = {
+                Home: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+                BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+                MessageSquare: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+                User: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+                ChevronDown: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>,
+                Mic: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>,
+                X: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+                Play: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+                CheckCircle2: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>,
+                Globe: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+                Lock: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+                MapPin: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            };
+            return icons[name] || null;
+        };
+
+        // --- COMPONENTS ---
+
+        const Logo = ({ className }) => (
+            <div className={`flex items-center cursor-pointer group ${className}`}>
+                {/* LOGO DEFINITIVO: Solo tipografía con el punto esmeralda */}
+                <span className="serif text-4xl font-bold tracking-tighter text-slate-900 group-hover:text-emerald-900 transition-colors select-none">
+                    Parlé<span className="text-emerald-500">.</span>
+                </span>
+            </div>
+        );
+
+        const LanguageSelector = ({ isOpen, onClose, onSelect, currentLangId, appLang }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-[70] flex flex-col justify-end md:justify-center animate-fade-in" onClick={onClose}>
+                    <div className="bg-white rounded-t-3xl md:rounded-3xl p-6 shadow-2xl max-w-md w-full mx-auto max-h-[80vh] overflow-y-auto slide-up" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="serif text-xl font-bold text-slate-900">{TEXTS[appLang].selectLanguage}</h3>
+                            <button onClick={onClose}><Icon name="X" className="text-gray-400" /></button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                            {LANGUAGES.map(lang => (
+                                <button 
+                                    key={lang.id}
+                                    onClick={() => onSelect(lang.id)}
+                                    className={`flex items-center p-4 rounded-xl border transition-all ${currentLangId === lang.id ? 'border-slate-900 bg-slate-50' : 'border-gray-100 hover:border-gray-300'}`}
+                                >
+                                    <img src={`https://flagcdn.com/w40/${lang.flag}.png`} alt={lang.name} className="w-8 h-6 object-cover rounded shadow-sm mr-4" />
+                                    <div className="text-left">
+                                        <span className="block font-medium text-slate-900">{appLang === 'es' ? lang.nameEs : lang.name}</span>
+                                    </div>
+                                    {currentLangId === lang.id && <Icon name="CheckCircle2" className="ml-auto text-emerald-600" size={18} />}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const MinimalHeader = ({ appLang, targetLang, setLangSelectorOpen }) => {
+            const currentLangObj = LANGUAGES.find(l => l.id === targetLang);
+
+            return (
+                <div className="pt-12 pb-6 px-8 bg-white z-10 sticky top-0 border-b border-gray-50 flex justify-between items-center">
+                    <Logo />
+                    
+                    <button 
+                        onClick={() => setLangSelectorOpen(true)}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 hover:border-slate-900 transition-colors group"
+                    >
+                        <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                            <img src={`https://flagcdn.com/w40/${currentLangObj?.flag}.png`} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-xs font-medium uppercase tracking-wider text-slate-600 group-hover:text-slate-900">
+                            {appLang === 'es' ? currentLangObj?.nameEs : currentLangObj?.name}
+                        </span>
+                        <Icon name="ChevronDown" size={14} className="text-gray-400 group-hover:text-slate-900" />
+                    </button>
+                </div>
+            );
+        };
+
+        const CourseCard = ({ course, onClick, texts }) => {
+            const isLocked = course.status === 'locked';
+            return (
+                <div 
+                    onClick={() => !isLocked && onClick(course)}
+                    className={`module-card relative mb-6 p-6 bg-white rounded-none border-l-2 ${isLocked ? 'border-gray-100 opacity-60' : 'border-slate-900 shadow-sm cursor-pointer'} flex justify-between items-center group`}
+                >
+                    <div className="flex-1">
+                        <span className={`text-xs font-bold tracking-widest mb-1 block ${course.status === 'completed' ? 'text-emerald-600' : 'text-gray-300'}`}>
+                            {texts.chapter} {course.number}
+                        </span>
+                        <h3 className={`text-xl mb-1 serif ${isLocked ? 'text-gray-400' : 'text-slate-800'}`}>
+                            {course.title}
+                        </h3>
+                        <p className="text-sm text-gray-400 font-light">{course.subtitle}</p>
+                    </div>
+                    <div className="flex items-center">
+                        {course.status === 'completed' ? (
+                            <Icon name="CheckCircle2" className="text-emerald-600" size={24} />
+                        ) : isLocked ? (
+                            <Icon name="Lock" className="text-gray-200" size={20} />
+                        ) : (
+                            <div className="w-8 h-8 rounded-full border border-slate-900 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                                <Icon name="Play" size={12} className="ml-0.5" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const MinimalNav = ({ activeTab, setActiveTab, texts }) => {
+            const tabs = [
+                { id: 'home', icon: 'BookOpen', label: texts.learn },
+                { id: 'guides', icon: 'Globe', label: texts.guides },
+                { id: 'chat', icon: 'MessageSquare', label: texts.converse },
+                { id: 'profile', icon: 'User', label: texts.me },
+            ];
+            return (
+                <div className="w-full bg-white/90 backdrop-blur-md h-20 fixed bottom-0 z-50 flex justify-around items-center px-4 pb-4 border-t border-gray-100 max-w-md">
+                    {tabs.map(tab => (
+                        <button 
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex flex-col items-center justify-center p-2 w-16 transition-all duration-500 group`}
+                        >
+                            <div className={`mb-1 transition-all duration-300 ${activeTab === tab.id ? 'text-slate-900 -translate-y-1' : 'text-gray-300 group-hover:text-gray-400'}`}>
+                                <Icon name={tab.icon} size={24} strokeWidth={activeTab === tab.id ? 2 : 1.5} />
+                            </div>
+                            <span className={`text-[10px] tracking-widest uppercase font-medium transition-all duration-300 ${activeTab === tab.id ? 'text-slate-900 opacity-100' : 'text-gray-300 opacity-0'}`}>
+                                {tab.label}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+            );
+        };
+
+        const ElegantLesson = ({ onExit, texts }) => {
+            const [step, setStep] = useState(0);
+            return (
+                <div className="fixed inset-0 bg-white z-[60] flex flex-col max-w-md mx-auto animate-fade-in">
+                    <div className="h-1 w-full bg-gray-50">
+                        <div className="h-full bg-slate-900 transition-all duration-700" style={{width: `${(step + 1) * 33}%`}}></div>
+                    </div>
+                    <div className="p-8 flex justify-between items-center">
+                        <button onClick={onExit} className="text-gray-400 hover:text-slate-900 transition-colors">
+                            <Icon name="X" size={24} />
+                        </button>
+                        <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">{texts.exercise} {step + 1} {texts.of} 3</span>
+                    </div>
+                    <div className="flex-1 px-10 flex flex-col justify-center">
+                        <span className="text-sm text-emerald-600 font-medium tracking-widest uppercase mb-4 text-center">{texts.translate}</span>
+                        <h2 className="text-3xl md:text-4xl text-center serif italic text-slate-900 mb-12 leading-tight">
+                            "I would like a coffee, please."
+                        </h2>
+                        <div className="space-y-3">
+                            {['Je veux un café.', 'Je voudrais un café, s\'il vous plaît.', 'Le café est bon.'].map((opt, i) => (
+                                <button 
+                                    key={i}
+                                    onClick={() => setStep(prev => Math.min(prev + 1, 2))}
+                                    className="w-full py-4 px-6 border border-gray-200 text-left text-slate-600 text-lg font-light hover:border-slate-900 hover:text-slate-900 transition-all bg-transparent active:bg-gray-50"
+                                >
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="p-8 text-center">
+                        <button className="text-xs text-gray-400 underline decoration-gray-300 hover:text-gray-600" onClick={onExit}>{texts.skip}</button>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- VIEWS ---
+
+        const HomeView = ({ texts, targetLang, setLessonOpen }) => {
+            const courses = COURSES_DATA[targetLang] || COURSES_DATA['default'];
+            return (
+                <div className="h-full overflow-y-auto px-8 pb-32 pt-4">
+                    <div className="mb-8">
+                        <p className="text-sm font-light text-gray-500 leading-relaxed">
+                            {texts.welcomeBack} <span className="text-slate-900 font-medium">{texts.topic}</span>.
+                        </p>
+                    </div>
+                    {courses.map(course => (
+                        <CourseCard key={course.id} course={course} onClick={() => setLessonOpen(true)} texts={texts} />
+                    ))}
+                </div>
+            );
+        };
+
+        const GuidesView = ({ texts, targetLang }) => {
+            const guides = GUIDES_DATA[targetLang] || GUIDES_DATA['default'];
+            return (
+                <div className="h-full flex flex-col">
+                    <div className="px-8 pt-4 pb-4 bg-white z-10">
+                        <p className="text-xs font-medium tracking-widest text-gray-400 uppercase mb-1">{texts.exploreContext}</p>
+                        <h1 className="text-3xl font-medium text-slate-900 serif italic">{texts.destinations}</h1>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-8 pb-32 space-y-8">
+                        {guides.map(guide => (
+                            <div key={guide.id} className="group cursor-pointer">
+                                <div className="h-64 w-full relative overflow-hidden mb-4">
+                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10"></div>
+                                    <img src={guide.image} alt={guide.city} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                    <div className="absolute bottom-4 left-4 z-20">
+                                        <div className="flex items-center gap-1 text-white mb-1">
+                                            <Icon name="MapPin" size={14} />
+                                            <span className="text-xs tracking-widest uppercase">{guide.country}</span>
+                                        </div>
+                                        <h3 className="text-3xl serif text-white italic">{guide.city}</h3>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                                    {guide.topics.map((topic, i) => (
+                                        <span key={i} className="px-3 py-1 bg-gray-50 border border-gray-100 text-xs text-slate-600 font-medium whitespace-nowrap">
+                                            {topic}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                         <div className="p-8 bg-gray-50 border border-gray-100 text-center">
+                            <h3 className="serif text-lg text-slate-900 mb-2">{texts.unlockMore}</h3>
+                            <p className="text-sm text-gray-500 font-light mb-4">{texts.unlockText}</p>
+                            <Icon name="Lock" size={20} className="mx-auto text-gray-300" />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ChatView = ({ texts }) => (
+            <div className="flex flex-col h-full bg-white relative">
+                <div className="pt-4 px-6 pb-4 border-b border-gray-50 flex items-center gap-4 bg-white z-10">
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-slate-400">
+                        <span className="serif italic text-lg text-slate-600">P</span>
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-medium serif text-slate-900">Pierre</h2>
+                        <p className="text-xs text-emerald-600 tracking-wide uppercase">{texts.online}</p>
+                    </div>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                    <div className="flex flex-col items-start max-w-[85%]">
+                        <div className="bg-gray-50 p-5 text-slate-700 text-lg font-light rounded-2xl rounded-tl-none">
+                            Bonjour! Comment allez-vous aujourd'hui?
+                        </div>
+                        <span className="text-[10px] text-gray-300 mt-2 ml-1">10:00 AM</span>
+                    </div>
+                </div>
+                <div className="p-6 pb-24 border-t border-gray-50">
+                    <div className="flex items-center gap-4">
+                        <button className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:border-slate-900 hover:text-slate-900 transition-colors">
+                            <Icon name="Mic" size={20} />
+                        </button>
+                        <input 
+                            type="text" 
+                            placeholder={texts.typeMessage}
+                            className="flex-1 bg-transparent border-b border-gray-200 py-2 text-slate-800 placeholder-gray-300 outline-none focus:border-slate-900 transition-colors font-light"
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+
+        const ProfileView = ({ texts, appLang, setAppLang }) => (
+            <div className="px-8 pb-24 h-full overflow-y-auto bg-white pt-4">
+                <div className="text-center mb-12">
+                    <div className="w-24 h-24 mx-auto bg-gray-100 rounded-full mb-6 overflow-hidden grayscale contrast-125">
+                         <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200" alt="Profile" className="w-full h-full object-cover" />
+                    </div>
+                    <h2 className="text-2xl serif text-slate-900 mb-1">Elena Rostova</h2>
+                    <p className="text-xs tracking-widest text-gray-400 uppercase">Intermediate</p>
+                </div>
+
+                {/* App Language Switcher */}
+                <div className="mb-8 flex justify-center">
+                    <div className="bg-gray-50 p-1 rounded-lg flex items-center">
+                        <button 
+                            onClick={() => setAppLang('es')}
+                            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${appLang === 'es' ? 'bg-white shadow-sm text-slate-900' : 'text-gray-400'}`}
+                        >
+                            Español
+                        </button>
+                        <button 
+                            onClick={() => setAppLang('en')}
+                            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${appLang === 'en' ? 'bg-white shadow-sm text-slate-900' : 'text-gray-400'}`}
+                        >
+                            English
+                        </button>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6 mb-12">
+                    <div className="p-6 border border-gray-100 text-center">
+                        <span className="block text-3xl font-light text-slate-900 mb-1">12</span>
+                        <span className="text-[10px] uppercase tracking-widest text-gray-400">{texts.streak}</span>
+                    </div>
+                    <div className="p-6 border border-gray-100 text-center">
+                        <span className="block text-3xl font-light text-slate-900 mb-1">85%</span>
+                        <span className="text-[10px] uppercase tracking-widest text-gray-400">{texts.fluency}</span>
+                    </div>
+                </div>
+
+                <h3 className="serif text-xl mb-6 text-slate-900">{texts.achievements}</h3>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-4 border border-gray-50 hover:border-gray-200 transition-colors">
+                        <div className="p-2 bg-gray-50 rounded-full text-slate-900">
+                            <Icon name="Globe" size={16} />
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-medium text-slate-900">{texts.culturalExplorer}</h4>
+                            <p className="text-xs text-gray-400 font-light">{texts.learnedIdioms}</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-4 p-4 border border-gray-50 hover:border-gray-200 transition-colors">
+                        <div className="p-2 bg-gray-50 rounded-full text-slate-900">
+                            <Icon name="MessageSquare" size={16} />
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-medium text-slate-900">{texts.convoStarter}</h4>
+                            <p className="text-xs text-gray-400 font-light">{texts.chattedHours}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- MAIN ---
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('home');
+            const [lessonOpen, setLessonOpen] = useState(false);
+            const [langSelectorOpen, setLangSelectorOpen] = useState(false);
+            
+            // STATES FOR LANGUAGES
+            const [appLang, setAppLang] = useState('es'); // 'es' or 'en'
+            const [targetLang, setTargetLang] = useState('fr'); // 'fr', 'jp', 'en', etc.
+
+            const texts = TEXTS[appLang];
+
+            return (
+                <>
+                    <main className="flex-1 relative h-full overflow-hidden flex flex-col">
+                        <MinimalHeader 
+                            appLang={appLang} 
+                            targetLang={targetLang} 
+                            setLangSelectorOpen={setLangSelectorOpen}
+                        />
+
+                        <div className="flex-1 overflow-hidden relative">
+                             {activeTab === 'home' && <HomeView texts={texts} targetLang={targetLang} setLessonOpen={setLessonOpen} />}
+                             {activeTab === 'guides' && <GuidesView texts={texts} targetLang={targetLang} />}
+                             {activeTab === 'chat' && <ChatView texts={texts} />}
+                             {activeTab === 'profile' && <ProfileView texts={texts} appLang={appLang} setAppLang={setAppLang} />}
+                        </div>
+                    </main>
+
+                    <MinimalNav activeTab={activeTab} setActiveTab={setActiveTab} texts={texts} />
+                    
+                    {lessonOpen && <ElegantLesson onExit={() => setLessonOpen(false)} texts={texts} />}
+                    
+                    <LanguageSelector 
+                        isOpen={langSelectorOpen} 
+                        onClose={() => setLangSelectorOpen(false)}
+                        onSelect={(id) => { setTargetLang(id); setLangSelectorOpen(false); }}
+                        currentLangId={targetLang}
+                        appLang={appLang}
+                    />
+                </>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
