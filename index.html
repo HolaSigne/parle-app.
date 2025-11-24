@@ -25,12 +25,12 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
         h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
         ::-webkit-scrollbar { width: 0px; }
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
-        .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
         
         /* Animations */
@@ -65,13 +65,15 @@
         };
 
         // --- DATA LAYER ---
+        
+        // Avatares 3D (Estilo Pixar/Memoji) - Incluyendo chica rubia sin turbante
         const AVATARS = [
-            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_3.png", 
-            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_32.png",
-            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_23.png", // Rubia pelo suelto
-            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_10.png",
-            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_34.png",
-            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_29.png"
+            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_3.png",  // Chico con gafas
+            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_32.png", // Chica profesional
+            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_23.png", // Chica rubia pelo suelto
+            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_10.png", // Chico rizos
+            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_34.png", // Chica pelo largo oscuro
+            "https://cdn.jsdelivr.net/gh/alohe/avatars/png/memo_29.png"  // Chico formal
         ];
 
         const PLANS = [
@@ -100,112 +102,20 @@
             ru: { name: "Natasha", role: "Uchitel", avatar: "N", greeting: "Privet. Russian is beautiful." }
         };
 
-        // --- NARRATIVE CULTURAL GUIDES ---
+        // NARRATIVE CULTURAL GUIDES
         const GUIDE_DETAILS = {
-            1: { 
-                title: "Parisian Lifestyle", 
-                image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600", 
-                intro: "Paris is not just a city; it's a world where time slows down at the café terrace. To understand French, you must understand the art of living ('Art de vivre').", 
-                sections: [
-                    { title: "The City of Light", content: "Paris, the capital of France, is divided into 20 'arrondissements' that spiral out like a snail shell. It's a city built on history, revolution, and romance." },
-                    { title: "Café Society", content: "The café is the Parisian's second living room. You can sit for hours with a single espresso (€2-3) watching the world go by. It's polite to say 'Bonjour' to the waiter before ordering." }
-                ], 
-                etiquette: [{icon:"Coffee", text:"Don't rush your drink."}], 
-                slang: [{term:"Kawa", meaning:"Coffee (Slang)"}] 
-            },
-            2: { 
-                title: "Tokyo: Future & Past", 
-                image: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600", 
-                intro: "Tokyo is a sensory overload where neon skyscrapers stand next to ancient Shinto shrines. Japan's capital is a masterpiece of order and efficiency.", 
-                sections: [
-                    { title: "The Megacity", content: "As the world's most populous metropolis, Tokyo functions like a well-oiled machine. Silence is golden on public transport—talking on the phone is considered rude." },
-                    { title: "Convenience Culture", content: "The 'Konbini' (convenience store) is life in Tokyo. Open 24/7, you can buy fresh sushi, pay bills, and even buy concert tickets there." }
-                ], 
-                etiquette: [{icon:"CheckCircle", text:"Quiet on trains."}], 
-                slang: [{term:"Konbini", meaning:"Convenience Store"}] 
-            },
-            3: { 
-                title: "Eternal Rome", 
-                image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600", 
-                intro: "Rome wasn't built in a day, and it shouldn't be seen in one. The Italian capital is a chaotic, beautiful layer cake of history.", 
-                sections: [
-                    { title: "La Dolce Vita", content: "Life in Rome happens on the streets. The 'Passeggiata' is the evening stroll where locals dress up just to walk and chat." },
-                    { title: "Coffee Rules", content: "Coffee is a religion. Espresso is drunk quickly at the bar (al banco). Never order a Cappuccino after 11 AM unless you want to look like a tourist!" }
-                ], 
-                etiquette: [{icon:"Coffee", text:"No cappuccino after lunch."}], 
-                slang: [{term:"Aho", meaning:"Hey (Roman)"}] 
-            },
-            4: { 
-                title: "Royal London", 
-                image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600", 
-                intro: "London is a tapestry of villages woven together. It's deeply historic yet aggressively modern, polite yet famously reserved.", 
-                sections: [
-                    { title: "The Capital", content: "London is the heart of the UK. From the Queen's Guard to the punk rockers of Camden, it embraces contrast. The weather is a constant topic of conversation." },
-                    { title: "Pub Culture", content: "The Public House (Pub) is the community hub. You usually order and pay at the bar, not at the table. Queuing is mandatory and sacred." }
-                ], 
-                etiquette: [{icon:"Clock", text:"Stand on the right (Tube)."}], 
-                slang: [{term:"Quid", meaning:"Pound (£)"}] 
-            },
-            5: { 
-                title: "Berlin Spirit", 
-                image: "https://images.unsplash.com/photo-1560969184-10fe8719e654?w=600", 
-                intro: "Berlin is poor but sexy. The German capital is a haven for artists, history buffs, and free spirits.", 
-                sections: [
-                    { title: "Reunited City", content: "Scars of the Wall remain, reminding us of history. Berlin is decentralized; each 'Kiez' (neighborhood) feels like its own little town." },
-                    { title: "Sunday Quiet", content: "Sundays in Germany are for rest. Shops are closed. It's the perfect day for a walk in the Tiergarten or a visit to a flea market." }
-                ], 
-                etiquette: [{icon:"Hand", text:"Directness is polite."}], 
-                slang: [{term:"Späti", meaning:"Late night shop"}] 
-            },
-            6: { 
-                title: "Rio's Rhythms", 
-                image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600", 
-                intro: "Rio de Janeiro is the 'Cidade Maravilhosa'. In Brazil, warmth is currency and the beach is the parliament.", 
-                sections: [
-                    { title: "Carioca Life", content: "Being a 'Carioca' (Rio local) means being relaxed. Time is flexible here. Meetings might start 30 minutes late, but the connection is genuine." },
-                    { title: "Beach Culture", content: "Copacabana and Ipanema aren't just for swimming. They are where business deals are made, friends meet, and football stars are born." }
-                ], 
-                etiquette: [{icon:"Sun", text:"Thumbs up is universal."}], 
-                slang: [{term:"Beleza?", meaning:"What's up?"}] 
-            },
-            7: { 
-                title: "Madrid Alive", 
-                image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=600", 
-                intro: "Madrid is the city that never sleeps. In Spain, life is lived outdoors, loud and proud.", 
-                sections: [
-                    { title: "Late Hours", content: "Spain runs on a different clock. Lunch is at 2 or 3 PM. Dinner? Don't even think about it before 9 PM. The nightlife often lasts until dawn." },
-                    { title: "Tapas Tradition", content: "Tapas are small plates meant to be shared. It's not just food; it's a social activity. You hop from bar to bar, eating and drinking standing up." }
-                ], 
-                etiquette: [{icon:"Clock", text:"Dinner is late (9pm+)."}], 
-                slang: [{term:"Vale", meaning:"Okay"}] 
-            },
-            8: { 
-                title: "Imperial Beijing", 
-                image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600", 
-                intro: "Beijing is the heart of China, where imperial history meets modern global power.", 
-                sections: [
-                    { title: "Ancient Capital", content: "Home to the Forbidden City and the Great Wall. Beijing is vast. The old alleyways, called 'Hutongs', show a glimpse of traditional community life." },
-                    { title: "Face & Respect", content: "In China, giving 'face' (mianzi) is crucial. Be respectful to elders. When giving a business card or gift, use both hands." }
-                ], 
-                etiquette: [{icon:"Hand", text:"Use two hands for cards."}], 
-                slang: [{term:"Chi le ma?", meaning:"Have you eaten?"}] 
-            },
-            9: { 
-                title: "Majestic Moscow", 
-                image: "https://images.unsplash.com/photo-1513326738677-b964603b136d?w=600", 
-                intro: "Moscow is a city of grand scales, onion domes, and deep literary history.", 
-                sections: [
-                    { title: "The Kremlin Heart", content: "Red Square is the soul of Russia. The city radiates power and history. Winters are harsh, but the hospitality inside is incredibly warm." },
-                    { title: "Underground Art", content: "The Moscow Metro is not just transport; it's an underground palace. Each station is decorated with marble, chandeliers, and statues." }
-                ], 
-                etiquette: [{icon:"User", text:"Give seats to elders."}], 
-                slang: [{term:"Poka", meaning:"Bye"}] 
-            }
+            1: { title: "Parisian Café", image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600", intro: "The café is a second living room for Parisians.", sections: [{title:"Ritual", content:"Sit, sip, observe. No rushing."}], etiquette: [{icon:"Coffee", text:"Say 'Bonjour' entering."}], slang: [{term:"Kawa", meaning:"Coffee"}] },
+            2: { title: "Tokyo Streets", image: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600", intro: "A blend of neon future and ancient tradition.", sections: [{title:"Order", content:"Vending machines are everywhere."}], etiquette: [{icon:"CheckCircle", text:"Quiet on trains."}], slang: [{term:"Konbini", meaning:"Convenience Store"}] },
+            3: { title: "Roman History", image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600", intro: "The Eternal City is an open-air museum.", sections: [{title:"Coffee", content:"Espresso at the bar."}], etiquette: [{icon:"Coffee", text:"No cappuccino after lunch."}], slang: [{term:"Aho", meaning:"Hey (Roman)"}] },
+            4: { title: "London Life", image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600", intro: "Historic yet modern.", sections: [{title:"Tube", content:"Mind the gap."}], etiquette: [{icon:"Clock", text:"Stand on the right."}], slang: [{term:"Quid", meaning:"Pound (£)"}] },
+            5: { title: "Berlin Vibes", image: "https://images.unsplash.com/photo-1560969184-10fe8719e654?w=600", intro: "Gritty, artistic, and free.", sections: [{title:"Kiez", content:"Your neighborhood."}], etiquette: [{icon:"Hand", text:"Directness is polite."}], slang: [{term:"Späti", meaning:"Late night shop"}] },
+            6: { title: "Rio Energy", image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600", intro: "Sun, sea, and samba.", sections: [{title:"Beach", content:"It's a lifestyle."}], etiquette: [{icon:"Sun", text:"Thumbs up is common."}], slang: [{term:"Beleza?", meaning:"What's up?"}] },
+            7: { title: "Madrid Nights", image: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=600", intro: "The city that never sleeps.", sections: [{title:"Tapas", content:"Share small plates."}], etiquette: [{icon:"Clock", text:"Dinner is late (9pm+)."}], slang: [{term:"Vale", meaning:"Okay"}] },
+            8: { title: "Beijing Ancient", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600", intro: "Imperial history meets modern power.", sections: [{title:"Hutongs", content:"Old alleyways."}], etiquette: [{icon:"Hand", text:"Two hands to give cards."}], slang: [{term:"Chi le ma?", meaning:"Have you eaten?"}] },
+            9: { title: "Moscow Metro", image: "https://images.unsplash.com/photo-1513326738677-b964603b136d?w=600", intro: "Underground palaces.", sections: [{title:"Art", content:"Statues and chandeliers."}], etiquette: [{icon:"User", text:"Give seats to elders."}], slang: [{term:"Poka", meaning:"Bye"}] }
         };
 
-        const GUIDES_BY_LANG = {
-            fr: [1], jp: [2], it: [3], en: [4], de: [5], pt: [6], es: [7], cn: [8], ru: [9]
-        };
+        const GUIDES_BY_LANG = { fr: [1], jp: [2], it: [3], en: [4], de: [5], pt: [6], es: [7], cn: [8], ru: [9] };
 
         const COURSES_DATA = {
             fr: [
@@ -219,19 +129,16 @@
                 { id: 1, type: 'visual_quiz', title: 'Food', subtitle: 'Visual Vocab', status: 'available', data: { question: "Select 'Sushi'", correct: "Sushi", options: [{id:1, text:"Sushi", img:"https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200"}, {id:2, text:"Ramen", img:"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=200"}] } },
                 { id: 2, type: 'flashcard', title: 'Hiragana', subtitle: 'Flashcards', status: 'available', data: [{front:"あ", back:"A"}, {front:"い", back:"I"}] },
                 { id: 3, type: 'speaking', title: 'Greetings', subtitle: 'Speaking', status: 'available', phrase: "Arigatou gozaimasu", wrongSim: "Arigato gozaimass" },
-                { id: 4, type: 'listening', title: 'Listening', subtitle: 'Write it', status: 'available', phrase: "Sumimasen", translation: "Excuse me" },
-                { id: 5, type: 'reading', title: 'Hanami', subtitle: 'Reading', status: 'available', data: {title:"Hanami", text:"Hanami is the custom of viewing cherry blossoms in spring.", question:"What is Hanami?", answer:"Viewing flowers", options:["Viewing flowers","Eating sushi","Winter festival"]} }
+                { id: 4, type: 'listening', title: 'Listening', subtitle: 'Write it', status: 'available', phrase: "Sumimasen", translation: "Excuse me" }
             ],
             es: [
                 { id: 1, type: 'visual_quiz', title: 'Elementos', subtitle: 'Visual', status: 'available', data: { question: "Select 'Water'", correct: "Agua", options: [{id:1, text:"Agua", img:"https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=200"}, {id:2, text:"Fuego", img:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200"}] } },
                 { id: 2, type: 'sentence_builder', title: 'Frases', subtitle: 'Builder', status: 'available', data: {target:"Hola como estas", english:"Hello how are you", words:["Hola","estas","como","bien"]} },
-                { id: 3, type: 'speaking', title: 'Saludos', subtitle: 'Speaking', status: 'available', phrase: "Buenos días", wrongSim: "Buenos dias" },
-                { id: 4, type: 'reading', title: 'La Siesta', subtitle: 'Reading', status: 'available', data: {title:"La Siesta", text:"La siesta es un breve descanso después de comer.", question:"When is siesta?", answer:"After eating", options:["After eating","Morning","Night"]} }
+                { id: 3, type: 'speaking', title: 'Saludos', subtitle: 'Speaking', status: 'available', phrase: "Buenos días", wrongSim: "Buenos dias" }
             ],
             en: [
                 { id: 1, type: 'visual_quiz', title: 'Transport', subtitle: 'Visual', status: 'available', data: { question: "Select 'Car'", correct: "Car", options: [{id:1, text:"Car", img:"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=200"}, {id:2, text:"Bike", img:"https://images.unsplash.com/photo-1485965120184-e224f7a1adb1?w=200"}] } },
-                { id: 2, type: 'speaking', title: 'Phrases', subtitle: 'Speaking', status: 'available', phrase: "Where is the station?", wrongSim: "Wer is de stayshun" },
-                { id: 3, type: 'flashcard', title: 'Verbs', subtitle: 'Flashcards', status: 'available', data: [{front:"To Run", back:"Correr"}, {front:"To See", back:"Ver"}] }
+                { id: 2, type: 'speaking', title: 'Phrases', subtitle: 'Speaking', status: 'available', phrase: "Where is the station?", wrongSim: "Wer is de stayshun" }
             ],
             it: [
                 { id: 1, type: 'visual_quiz', title: 'Cibo', subtitle: 'Visual', status: 'available', data: { question: "Select 'Pizza'", correct: "Pizza", options: [{id:1, text:"Pizza", img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200"}, {id:2, text:"Pasta", img:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=200"}] } },
@@ -272,11 +179,13 @@
                 Send: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
                 MessageSquare: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
                 Lock: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+                RotateCw: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>,
                 Clock: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
                 Camera: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>,
                 Headphones: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>,
                 Edit3: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>,
-                Layout: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>
+                Layout: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>,
+                ChevronDown: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6 9 6 6 6-6"/></svg>
             };
             return icons[name] || null;
         };
